@@ -35,4 +35,104 @@ pip install cloudsigma
 
 ## Test the installation
 
-TODO
+### Test Template
+
+```
+{
+	"AWSTemplateFormatVersion": "2010-09-09",
+	"Description": "CloudSigma test",
+	"Parameters": 
+	{
+		"UserName": 
+		{
+			"Description": "CloudSigma username",
+			"Type": "String"
+		},
+
+		"Password": 
+		{
+			"Description": "CloudSigma password",
+			"Type": "String"
+		},
+
+		"CloneUUID": 
+		{
+			"Description": "Drive UUID to clone.",
+			"Type": "String"
+		}
+		
+	},
+
+	"Resources": 
+	{
+		"TestServer": 
+		{
+			"Type": "CloudSigma::Compute::Instance",
+			"Properties": 
+			{
+				"username": 
+				{
+					"Ref": "UserName"
+				},
+
+				"password": 
+				{
+					"Ref": "Password"
+				},
+
+				"description": "Created by HEAT",
+				
+				"drive_clone_uuid": 
+				{
+					"Ref": "CloneUUID"
+				},
+
+				"net_ip_uuids": 
+				[
+					"dhcp"
+				]				
+			}
+		}
+	},
+
+	"Outputs": 
+	{
+		"Server IP": 
+		{
+			"Value": 
+			{
+				"Fn::GetAtt": 
+				[
+					"TestServer",
+					"network_ip"
+				]
+			},
+
+			"Description": "The IP of the server"
+		}
+	}
+}
+```
+
+The *CloneUUID* parameter can be taken from the url of the Drive from the Marketplace in the CloudSigma management web app.
+
+By default the datacenter that receives the calls is ZRH, this can be changed by the *api_endpoint* parameter. Use https://_LOC_.cloudsigma.com/api/2.0/ _LOC_ can be one of zrh, lvs, wdc; new locations are added constantly.
+ 
+## Parameters
+
+* api_endpoint
+* username
+* password
+* instance_name
+* mem_size
+* cpu_mhz
+* vnc_password
+* meta
+* description
+* cloudinit_user_data
+* ssh_public_key
+* drive_clone_uuid
+* drive_clone_resize
+* drive_uuid
+* net_ip_uuids
+* net_vlan_uuids
