@@ -30,7 +30,7 @@ pip install cloudsigma
 
 1. Copy the file into the Heat plugin  directory. For the plugin directiry see the configuration parameter *plugin_dirs* in */etc/heat/heat.conf* on DevStack *plugin_dirs=/usr/lib64/heat,/usr/lib/heat*
 
-2. Restart **heat-api**
+2. Restart *heat-api*
 
 
 ## Test the installation
