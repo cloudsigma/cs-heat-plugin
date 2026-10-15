@@ -1,0 +1,37 @@
+name: Experimental offline wheel
+on:
+  pull_request:
+  push:
+permissions:
+  contents: read
+jobs:
+  installed-wheel:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Build and install qualified dependencies and wheel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m venv "$RUNNER_TEMP/heat-venv"
+          py="$RUNNER_TEMP/heat-venv/bin/python"
+          "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt pip setuptools wheel
+          "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt 'cloudsigma @ git+https://github.com/cloudsigma/pycloudsigma.git@296e21e9c0f0ec205d839b1d3c6fa22e674f18df'
+          "$py" -I -m pip wheel --no-deps --no-index --no-build-isolation --wheel-dir "$RUNNER_TEMP/heat-dist" .
+          "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt "$RUNNER_TEMP"/heat-dist/*.whl
+          "$py" -I -m pip check
+      - name: Installed wheel synthetic contract (no cloud)
+        shell: bash
+        run: |
+          set -euo pipefail
+          work="$(mktemp -d "$RUNNER_TEMP/heat-test.XXXXXX")"
+          cd "$work"
+          env -i PATH=/usr/bin:/bin HOME="$work" CLOUDSIGMA_CONFIG=/dev/null RESULT_IMPORTS="$work/imports.json" "$RUNNER_TEMP/heat-venv/bin/python" -I -B "$GITHUB_WORKSPACE/tests/installed_contract.py"
+          env -i PATH=/usr/bin:/bin HOME="$work" CLOUDSIGMA_CONFIG=/dev/null "$RUNNER_TEMP/heat-venv/bin/python" -I -B "$GITHUB_WORKSPACE/tests/refusal_probes.py"
+          env -i PATH=/usr/bin:/bin HOME="$work" "$RUNNER_TEMP/heat-venv/bin/python" -I -B "$GITHUB_WORKSPACE/ci/verify_wheel.py" "$GITHUB_WORKSPACE" "$RUNNER_TEMP/heat-dist" "$work/imports.json"
