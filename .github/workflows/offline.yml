@@ -22,7 +22,7 @@ jobs:
           python -m venv "$RUNNER_TEMP/heat-venv"
           py="$RUNNER_TEMP/heat-venv/bin/python"
           "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt pip setuptools wheel
-          "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt 'cloudsigma @ git+https://github.com/cloudsigma/pycloudsigma.git@296e21e9c0f0ec205d839b1d3c6fa22e674f18df'
+          "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt 'cloudsigma @ git+https://github.com/cloudsigma/pycloudsigma.git@e59a412db46ae5de466e78d622140b0fd6bf93c3'
           "$py" -I -m pip wheel --no-deps --no-index --no-build-isolation --wheel-dir "$RUNNER_TEMP/heat-dist" .
           "$py" -I -m pip install --index-url https://pypi.org/simple -c ci/constraints.txt "$RUNNER_TEMP"/heat-dist/*.whl
           "$py" -I -m pip check
